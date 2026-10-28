@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FixMyWiFi – Free WiFi speed test, dead-zone finder & fix plan</title>
+<meta name="description" content="Why is my WiFi slow? Free private speed test, room-by-room dead-zone map and a personalized step-by-step fix plan. No account, no trackers, works offline.">
+<meta name="theme-color" content="#0b1020"><link rel="canonical" href="https://davidsandyofficial.github.io/fixmywifi/">
+<meta property="og:type" content="website"><meta property="og:title" content="FixMyWiFi – find out why your WiFi sucks (and fix it)">
+<meta property="og:description" content="Free speed test, room-by-room dead-zone map and a personalized fix plan. Private, no account.">
+<meta property="og:url" content="https://davidsandyofficial.github.io/fixmywifi/"><meta property="og:image" content="https://davidsandyofficial.github.io/fixmywifi/og.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@DavidSandy"><meta name="twitter:image" content="https://davidsandyofficial.github.io/fixmywifi/og.png">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"FixMyWiFi","applicationCategory":"UtilitiesApplication","offers":{"@type":"Offer","price":"0"},"url":"https://davidsandyofficial.github.io/fixmywifi/"}</script>
+</head><body>
+<header class="top"><div class="brand"><img src="icons/icon-192.png" alt="" width="34" height="34"><b>FixMyWiFi</b></div>
+<nav class="tabs" id="tabs" aria-label="Sections">
+<button data-v="test" class="on">⚡ <span>Test</span></button><button data-v="rooms">🏠 <span>Rooms</span></button><button data-v="diag">🩺 <span>Diagnose</span></button><button data-v="plan">✅ <span>Fix plan</span></button><button data-v="hist">📈 <span>History</span></button></nav>
+<button id="installBtn" class="btn ghost small" hidden>⬇ Install</button></header>
+<div class="layout"><main id="main">
+
+<section id="v-test" class="view on">
+ <div class="hero card glow"><h1>Why is my WiFi slow?</h1><p class="muted">Test it, map your rooms, get a fix plan made for your home. Free, private, nothing to sign up for.</p>
+ <div class="gauge" id="gauge"><svg viewBox="0 0 200 120"><path d="M20 110 A80 80 0 0 1 180 110" class="g-bg"/><path id="garc" d="M20 110 A80 80 0 0 1 180 110" class="g-fg"/></svg>
+ <div class="gnum"><span id="gval">0</span><small id="gunit">Mbps</small></div><div id="gphase" class="muted small">Ready when you are</div></div>
+ <button id="runBtn" class="btn big">Start test</button>
+ <div class="stats"><div><small>Download</small><b id="sDown">–</b></div><div><small>Upload</small><b id="sUp">–</b></div><div><small>Ping</small><b id="sPing">–</b></div><div><small>Jitter</small><b id="sJit">–</b></div></div>
+ <label class="room-pick">Testing from <select id="roomSel"></select></label></div>
+ <div id="verdict" class="card" hidden></div>
+</section>
+
+<section id="v-rooms" class="view"><div class="card"><h2>Dead-zone map</h2><p class="muted">Walk around and run a quick test in each room. Weak rooms light up red, so you know exactly where the fix goes.</p>
+ <form id="roomForm" class="row"><input id="roomName" placeholder="Add a room (e.g. Bedroom)" maxlength="24" aria-label="Room name"><button class="btn">Add</button></form>
+ <div id="roomList" class="rooms"></div></div></section>
+
+<section id="v-diag" class="view"><div class="card"><h2>60-second WiFi checkup</h2><p class="muted">Answer a few taps. Your fix plan is ranked free fixes first.</p><form id="quiz"></form></div></section>
+
+<section id="v-plan" class="view"><div class="card"><div class="row between"><h2>Your fix plan</h2><span class="pill" id="planPct">0%</span></div>
+ <div class="bar"><i id="planBar"></i></div><div id="planList" class="plan"></div>
+ <div class="row wrap"><button id="icsBtn" class="btn ghost">⏰ Remind me to retest in 7 days</button><button id="resetPlan" class="btn ghost">Start over</button></div></div>
+ <div class="card" id="gearCard"><h2>Gear that fixes your exact problem</h2><p class="disc">As an Amazon Associate I earn from qualifying purchases. Links open Amazon search, so you pick the model and price.</p><div id="gear" class="gear"></div></div></section>
+
+<section id="v-hist" class="view"><div class="card"><h2>Before → after</h2><canvas id="chart" height="180" aria-label="Speed history chart"></canvas><div id="beforeAfter" class="ba"></div>
+ <div class="row wrap"><button id="shareImg" class="btn">📸 Share my results card</button><button id="shareX" class="btn ghost">𝕏 Post my glow-up</button><button id="clearHist" class="btn ghost">Clear history</button></div>
+ <div id="histList" class="hist"></div></div></section>
+</main>
+<aside class="side"><div class="card" id="summary"><h3>Your WiFi score</h3><div class="score" id="score">–</div><p class="muted small" id="scoreTxt">Run a test to get your grade.</p><div id="sumPlan" class="small"></div></div>
+<div class="card follow"><div class="fh"><img src="icons/icon-192.png" alt="" width="40" height="40"><div><b>Built free by @DavidSandy</b><p class="small muted">I build free tools that actually fix annoying everyday stuff, with no ads and no tracking. Follow to get the next one first and vote on what I build.</p></div></div>
+<a class="btn x" href="https://x.com/intent/follow?screen_name=DavidSandy" target="_blank" rel="noopener">Follow @DavidSandy on 𝕏</a></div></aside></div>
+<footer class="foot"><p>As an Amazon Associate I earn from qualifying purchases.</p><p><a href="about.html">About</a> · <a href="privacy.html">Privacy</a> · Speed tests use Cloudflare's public test servers. Results stay on your device.</p></footer>
+<nav class="bnav" id="bnav" aria-label="Sections"><button data-v="test" class="on">⚡<span>Test</span></button><button data-v="rooms">🏠<span>Rooms</span></button><button data-v="diag">🩺<span>Checkup</span></button><button data-v="plan">✅<span>Plan</span></button><button data-v="hist">📈<span>History</span></button></nav>
+<div id="toast" role="status"></div>
+<script src="config.js"></script><script src="app.js"></script></body></html>
