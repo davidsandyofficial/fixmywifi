@@ -1,4 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://speed.cloudflare.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>FixMyWiFi – Free WiFi speed test, dead-zone finder & fix plan</title>
 <meta name="description" content="Why is my WiFi slow? Free private speed test, room-by-room dead-zone map and a personalized step-by-step fix plan. No account, no trackers, works offline.">
@@ -21,7 +23,7 @@
  <div class="hero card glow"><h1>Why is my WiFi slow?</h1><p class="muted">Test it, map your rooms, get a fix plan made for your home. Free, private, nothing to sign up for.</p>
  <div class="gauge" id="gauge"><svg viewBox="0 0 200 120"><path d="M20 110 A80 80 0 0 1 180 110" class="g-bg"/><path id="garc" d="M20 110 A80 80 0 0 1 180 110" class="g-fg"/></svg>
  <div class="gnum"><span id="gval">0</span><small id="gunit">Mbps</small></div><div id="gphase" class="muted small">Ready when you are</div></div>
- <button id="runBtn" class="btn big">Start test</button>
+ <button id="runBtn" class="btn big">Start test</button><p class="muted small">Uses about 50–150 MB of data on fast connections. Results are estimates.</p>
  <div class="stats"><div><small>Download</small><b id="sDown">–</b></div><div><small>Upload</small><b id="sUp">–</b></div><div><small>Ping</small><b id="sPing">–</b></div><div><small>Jitter</small><b id="sJit">–</b></div></div>
  <label class="room-pick">Testing from <select id="roomSel"></select></label></div>
  <div id="verdict" class="card" hidden></div>
@@ -42,10 +44,10 @@
  <div class="row wrap"><button id="shareImg" class="btn">📸 Share my results card</button><button id="shareX" class="btn ghost">𝕏 Post my glow-up</button><button id="clearHist" class="btn ghost">Clear history</button></div>
  <div id="histList" class="hist"></div></div></section>
 </main>
-<aside class="side"><div class="card" id="summary"><h3>Your WiFi score</h3><div class="score" id="score">–</div><p class="muted small" id="scoreTxt">Run a test to get your grade.</p><div id="sumPlan" class="small"></div></div>
+<aside class="side"><div class="card" id="summary"><h2 class="h3">Your WiFi score</h2><div class="score" id="score">–</div><p class="muted small" id="scoreTxt">Run a test to get your grade.</p><div id="sumPlan" class="small"></div></div>
 <div class="card follow"><div class="fh"><img src="icons/icon-192.png" alt="" width="40" height="40"><div><b>Built free by @DavidSandy</b><p class="small muted">I build free tools that actually fix annoying everyday stuff, with no ads and no tracking. Follow to get the next one first and vote on what I build.</p></div></div>
-<a class="btn x" href="https://x.com/intent/follow?screen_name=DavidSandy" target="_blank" rel="noopener">Follow @DavidSandy on 𝕏</a></div></aside></div>
-<footer class="foot"><p>As an Amazon Associate I earn from qualifying purchases.</p><p><a href="about.html">About</a> · <a href="privacy.html">Privacy</a> · Speed tests use Cloudflare's public test servers. Results stay on your device.</p></footer>
+<a class="btn x" href="https://x.com/intent/follow?screen_name=DavidSandy" target="_blank" rel="noopener noreferrer">Follow @DavidSandy on 𝕏</a></div></aside></div>
+<footer class="foot"><p>As an Amazon Associate I earn from qualifying purchases.</p><p><a href="about.html">About</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · Speed test powered by Cloudflare's public speed-test servers. Results stay on your device.</p><p>Not affiliated with or endorsed by Amazon, Cloudflare, X or any router maker. Brand names are used only to describe products.</p></footer>
 <nav class="bnav" id="bnav" aria-label="Sections"><button data-v="test" class="on">⚡<span>Test</span></button><button data-v="rooms">🏠<span>Rooms</span></button><button data-v="diag">🩺<span>Checkup</span></button><button data-v="plan">✅<span>Plan</span></button><button data-v="hist">📈<span>History</span></button></nav>
 <div id="toast" role="status"></div>
 <script src="config.js"></script><script src="app.js"></script></body></html>

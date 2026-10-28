@@ -1,12 +1,21 @@
 'use strict';
+if(window.top!==window.self){document.documentElement.style.display='none';try{window.top.location=window.self.location}catch(e){}}
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const LS={get:(k,d)=>{try{return JSON.parse(localStorage.getItem('fmw_'+k))??d}catch{return d}},set:(k,v)=>localStorage.setItem('fmw_'+k,JSON.stringify(v))};
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LS={get:(k,d)=>{try{const v=JSON.parse(localStorage.getItem('fmw_'+k));return v==null?d:clean(k,v,d)}catch{return d}},set:(k,v)=>localStorage.setItem('fmw_'+k,JSON.stringify(v))};
+const num=(v,max=1e5)=>{v=+v;return Number.isFinite(v)&&v>=0?Math.min(v,max):0},str=(v,n=24)=>String(v??'').slice(0,n),ID=/^r\d{1,16}$/;
+const cleanR=r=>r&&typeof r==='object'?{t:num(r.t,9e15),down:num(r.down),up:num(r.up),ping:num(r.ping),jitter:num(r.jitter),room:ID.test(r.room)?r.room:''}:null;
+function clean(k,v,d){try{if(k==='hist')return Array.isArray(v)?v.map(cleanR).filter(Boolean).slice(-200):d;
+ if(k==='rooms')return Array.isArray(v)?v.filter(r=>r&&ID.test(r.id)).slice(0,30).map(r=>{const o={id:r.id,name:str(r.name)};if(r.last)o.last=cleanR(r.last);return o}):d;
+ if(k==='done'){const o={};if(v&&typeof v==='object')for(const x in v)if(/^[a-z]{2,10}$/.test(x))o[x]=!!v[x];return o}
+ if(k==='quiz'){if(!v||typeof v!=='object')return d;const o={};for(const[q,,opts,m]of Q){const x=v[q];o[q]=m?(Array.isArray(x)?x.filter(i=>Number.isInteger(i)&&i>=0&&i<opts.length):[]):(Number.isInteger(x)&&x>=0&&x<opts.length?x:undefined)}return o}}catch{}return d}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2600)}
 function amz(q){const u=new URL('https://www.amazon.com/s');u.searchParams.set('k',q);if(AMAZON_TAG)u.searchParams.set('tag',AMAZON_TAG);return u.href}
 // ---------- navigation
 function go(v){$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));$$('[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));if(v==='hist')drawHist();if(v==='plan')renderPlan();history.replaceState(null,'','#'+v);window.scrollTo({top:0,behavior:'smooth'})}
 $$('[data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
+const applyW=root=>root.querySelectorAll('[data-w]').forEach(e=>{e.style.width=e.dataset.w+'%';if(e.dataset.c)e.style.background=e.dataset.c});
 document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea'))return;const i='12345'.indexOf(e.key);if(i>=0)go(['test','rooms','diag','plan','hist'][i])});
 // ---------- speed test (Cloudflare public endpoints, CORS-enabled)
 const CF='https://speed.cloudflare.com';
@@ -33,14 +42,14 @@ function grade(r){let s=0;s+=Math.min(40,r.down/250*40);s+=Math.min(20,r.up/50*2
 function showVerdict(r){const g=grade(r);const v=$('#verdict');v.hidden=false;
  v.innerHTML=`<h2>Grade ${g.g} <span class="muted small">(${g.s}/100)</span></h2><div class="uses">${USES.map(([i,n,f])=>`<div class="use"><b>${i} ${n}</b><span class="${f(r)?'ok':'bad'}">${f(r)?'Good to go':'Struggles'}</span></div>`).join('')}</div>
  <p class="muted small">${r.ping>80?'High ping usually means a busy or far WiFi link. Test next to the router to compare.':r.down<25?'Low download. Check it next to the router: if it is much faster there, it is a WiFi coverage problem, not your plan.':'Solid. Now test the rooms where it feels slow.'}</p>
- <div class="row wrap"><button class="btn" onclick="go('rooms')">Map my rooms →</button><button class="btn ghost" onclick="go('diag')">Get my fix plan</button></div>`}
+ <div class="row wrap"><button class="btn" data-go="rooms">Map my rooms →</button><button class="btn ghost" data-go="diag">Get my fix plan</button></div>`}
 // ---------- rooms
 function defRooms(){return[{id:'r1',name:'Next to router'},{id:'r2',name:'Bedroom'},{id:'r3',name:'Living room'}]}
 function lvl(d){return d>=100?['ok','#34d399','Strong']:d>=25?['meh','#fbbf24','OK']:['bad','#f87171','Dead zone']}
 function renderRooms(){const rooms=LS.get('rooms',defRooms());const sel=$('#roomSel');const cur=sel.value;sel.innerHTML=rooms.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('');if(cur)sel.value=cur;
  $('#roomList').innerHTML=rooms.map(r=>{const l=r.last?lvl(r.last.down):null;return`<div class="room"><button class="x" aria-label="Remove ${esc(r.name)}" data-del="${r.id}">×</button><b>${esc(r.name)}</b>
- ${l?`<div class="lvl"><i style="width:${Math.min(100,Math.log10(1+r.last.down)/3*100)}%;background:${l[1]}"></i></div><span class="${l[0]}">${l[2]}</span> · ${r.last.down} Mbps · ${r.last.ping} ms`:'<p class="muted small">Not tested yet</p>'}
- <div><button class="btn small" data-test="${r.id}" style="margin-top:8px">${r.last?'Retest':'Test here'}</button></div></div>`}).join('');
+ ${l?`<div class="lvl"><i data-w="${Math.min(100,Math.log10(1+r.last.down)/3*100)}" data-c="${l[1]}"></i></div><span class="${l[0]}">${l[2]}</span> · ${r.last.down} Mbps · ${r.last.ping} ms`:'<p class="muted small">Not tested yet</p>'}
+ <div><button class="btn small mt8" data-test="${r.id}">${r.last?'Retest':'Test here'}</button></div></div>`}).join('');applyW($('#roomList'));
  $$('[data-del]').forEach(b=>b.onclick=()=>{LS.set('rooms',LS.get('rooms',defRooms()).filter(x=>x.id!==b.dataset.del));renderRooms()});
  $$('[data-test]').forEach(b=>b.onclick=()=>{$('#roomSel').value=b.dataset.test;go('test');runTest(b.dataset.test)})}
 $('#roomForm').onsubmit=e=>{e.preventDefault();const n=$('#roomName').value.trim();if(!n)return;const r=LS.get('rooms',defRooms());r.push({id:'r'+Date.now(),name:n});LS.set('rooms',r);$('#roomName').value='';renderRooms();toast('Room added. Go there and tap Test here.')};
@@ -107,11 +116,11 @@ $('#shareImg').onclick=async()=>{const h=LS.get('hist',[]);if(!h.length)return t
  const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=new File([blob],'my-wifi.png',{type:'image/png'});
  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:shareText()+' '+SITE_URL})}catch{}}else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='my-wifi.png';a.click();toast('Image saved. Attach it to your post!')}};
 function renderSummary(){const h=LS.get('hist',[]);if(h.length){const g=grade(h[h.length-1]);$('#score').textContent=g.g;$('#scoreTxt').textContent=`${g.s}/100 · ${h.length} test${h.length>1?'s':''} saved on this device`}
- const S=buildPlan(),d=LS.get('done',{});$('#sumPlan').innerHTML=`<div class="bar"><i style="width:${S.length?S.filter(s=>d[s.id]).length/S.length*100:0}%"></i></div>${S.filter(s=>!d[s.id]).slice(0,3).map(s=>'→ '+esc(s.t)).join('<br>')}`}
+ const S=buildPlan(),d=LS.get('done',{});$('#sumPlan').innerHTML=`<div class="bar"><i data-w="${S.length?S.filter(s=>d[s.id]).length/S.length*100:0}"></i></div>${S.filter(s=>!d[s.id]).slice(0,3).map(s=>'→ '+esc(s.t)).join('<br>')}`;applyW($('#sumPlan'))}
 // ---------- install
 let dp;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#installBtn').hidden=false});
 $('#installBtn').onclick=async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;$('#installBtn').hidden=true}};
 if(/iphone|ipad/i.test(navigator.userAgent)&&!navigator.standalone){$('#installBtn').hidden=false;$('#installBtn').onclick=()=>toast('Tap Share, then “Add to Home Screen”')}
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 renderRooms();renderQuiz();renderSummary();const h0=LS.get('hist',[]);if(h0.length){const l=h0[h0.length-1];showVerdict(l);$('#sDown').textContent=l.down;$('#sUp').textContent=l.up;$('#sPing').textContent=l.ping+' ms';$('#sJit').textContent=l.jitter+' ms';setGauge(l.down,1000,'Mbps','Last test')}
-const hv=location.hash.slice(1);if(['rooms','diag','plan','hist'].includes(hv))go(hv);
+const hv=location.hash.slice(1,10);if(['rooms','diag','plan','hist'].includes(hv))go(hv);
